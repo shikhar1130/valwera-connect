@@ -3,7 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Card } from "./ui/card";
 import { Link } from "react-router-dom";
-import { Activity, Award, UserPlus, BookMarked, Bookmark } from "lucide-react";
+import { Activity, Award, UserPlus, BookMarked, Bookmark, Briefcase } from "lucide-react";
 
 const Sidebar = () => {
   const { user } = useAuth();
@@ -46,9 +46,14 @@ const Sidebar = () => {
       {/* Navigation Links */}
       <Card>
         <div className="p-2">
-          <Link to="/connections" className="flex items-center p-2 rounded-md hover:bg-muted">
+          <Link to="/network" className="flex items-center p-2 rounded-md hover:bg-muted">
             <UserPlus className="h-4 w-4 mr-3" />
             <span className="text-sm">My Connections</span>
+          </Link>
+          
+          <Link to="/jobs" className="flex items-center p-2 rounded-md hover:bg-muted">
+            <Briefcase className="h-4 w-4 mr-3" />
+            <span className="text-sm">Jobs & Trials</span>
           </Link>
           
           <Link to="/saved" className="flex items-center p-2 rounded-md hover:bg-muted">

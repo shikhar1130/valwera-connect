@@ -11,6 +11,7 @@ import Register from "./pages/Register";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 import Network from "./pages/Network";
+import Jobs from "./pages/Jobs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const AppRoutes = () => {
       <Route path="/feed" element={<Feed />} />
       <Route path="/profile/:id" element={<Profile />} />
       <Route path="/network" element={<Network />} />
+      <Route path="/jobs" element={<Jobs />} />
       
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, Home, MessageSquare, Search, User, Users } from "lucide-react";
+import { Bell, Briefcase, Home, MessageSquare, Search, User, Users } from "lucide-react";
 import { Input } from "./ui/input";
 import { useState } from "react";
 
@@ -57,7 +57,7 @@ const Navbar = () => {
           {user ? (
             <>
               <nav className="hidden md:flex items-center space-x-1">
-                <Link to="/">
+                <Link to="/feed">
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Home className="h-5 w-5" />
                   </Button>
@@ -65,6 +65,11 @@ const Navbar = () => {
                 <Link to="/network">
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Users className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link to="/jobs">
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Briefcase className="h-5 w-5" />
                   </Button>
                 </Link>
                 <Link to="/messages">
@@ -148,7 +153,7 @@ const Navbar = () => {
           <div className="container mx-auto px-4">
             <div className="flex flex-col space-y-2">
               <Link
-                to="/"
+                to="/feed"
                 className="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -162,6 +167,14 @@ const Navbar = () => {
               >
                 <Users className="h-5 w-5" />
                 <span>Network</span>
+              </Link>
+              <Link
+                to="/jobs"
+                className="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-md"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Briefcase className="h-5 w-5" />
+                <span>Jobs & Trials</span>
               </Link>
               <Link
                 to="/messages"
