@@ -3,7 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Card } from "./ui/card";
 import { Link } from "react-router-dom";
-import { Basketball, Award, UserPlus, BookMarked, Bookmark } from "lucide-react";
+import { Activity, Award, UserPlus, BookMarked, Bookmark } from "lucide-react";
 
 const Sidebar = () => {
   const { user } = useAuth();
@@ -57,7 +57,7 @@ const Sidebar = () => {
           </Link>
           
           <Link to="/my-sports" className="flex items-center p-2 rounded-md hover:bg-muted">
-            <Basketball className="h-4 w-4 mr-3" />
+            <Activity className="h-4 w-4 mr-3" />
             <span className="text-sm">My Sports</span>
           </Link>
           
