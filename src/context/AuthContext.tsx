@@ -1,6 +1,15 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { authService, User } from "../services/auth";
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  updateProfile,
+  User as FirebaseUser
+} from "firebase/auth";
+import { auth } from "../config/firebase";
+import { User } from "../services/auth";
 import { useToast } from "@/components/ui/use-toast";
 
 interface AuthContextType {
@@ -14,43 +23,55 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to convert Firebase user to our User model
+const createUserFromFirebaseUser = (firebaseUser: FirebaseUser): User => {
+  return {
+    _id: firebaseUser.uid,
+    name: firebaseUser.displayName || "User",
+    email: firebaseUser.email || "",
+    profileImage: firebaseUser.photoURL || undefined,
+    createdAt: firebaseUser.metadata.creationTime || new Date().toISOString(),
+    updatedAt: firebaseUser.metadata.lastSignInTime || new Date().toISOString()
+  };
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const token = localStorage.getItem("valwera_token");
-    if (token) {
-      loadUser();
-    } else {
+    // Subscribe to auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(createUserFromFirebaseUser(firebaseUser));
+      } else {
+        setUser(null);
+      }
       setLoading(false);
-    }
-  }, []);
+    });
 
-  const loadUser = async () => {
-    try {
-      const userData = await authService.getCurrentUser();
-      setUser(userData);
-    } catch (error) {
-      // Token might be invalid, clear it
-      authService.logout();
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Cleanup subscription
+    return () => unsubscribe();
+  }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const response = await authService.login({ email, password });
-      setUser(response.user);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+      setUser(createUserFromFirebaseUser(firebaseUser));
+      
       toast({
         title: "Login successful",
-        description: `Welcome back, ${response.user.name}!`,
+        description: `Welcome back, ${firebaseUser.displayName || "User"}!`,
       });
-    } catch (error) {
-      // Error is handled by the api service
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Failed to login. Please try again.",
+        variant: "destructive"
+      });
       throw error;
     } finally {
       setLoading(false);
@@ -60,14 +81,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (name: string, email: string, password: string) => {
     setLoading(true);
     try {
-      const response = await authService.register({ name, email, password });
-      setUser(response.user);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+      
+      // Update profile with the name
+      await updateProfile(firebaseUser, { displayName: name });
+      
+      // Update local state
+      setUser(createUserFromFirebaseUser({
+        ...firebaseUser,
+        displayName: name
+      }));
+      
       toast({
         title: "Registration successful",
-        description: `Welcome to ValWera Sports, ${response.user.name}!`,
+        description: `Welcome to ValWera Sports, ${name}!`,
       });
-    } catch (error) {
-      // Error is handled by the api service
+    } catch (error: any) {
+      toast({
+        title: "Registration failed",
+        description: error.message || "Failed to register. Please try again.",
+        variant: "destructive"
+      });
       throw error;
     } finally {
       setLoading(false);
@@ -75,31 +110,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    authService.logout();
-    setUser(null);
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully",
+    signOut(auth).then(() => {
+      setUser(null);
+      toast({
+        title: "Logged out",
+        description: "You have been logged out successfully",
+      });
+    }).catch((error) => {
+      toast({
+        title: "Logout failed",
+        description: error.message || "Failed to logout. Please try again.",
+        variant: "destructive"
+      });
     });
   };
 
-  const updateProfile = async (data: Partial<User>) => {
+  const updateUserProfile = async (data: Partial<User>) => {
     try {
-      const updatedUser = await authService.updateProfile(data);
-      setUser(updatedUser);
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error("No user is logged in");
+      }
+
+      // Only update display name and photo URL for now
+      // For other fields, you would need to store them in a database
+      const updates: any = {};
+      if (data.name) {
+        updates.displayName = data.name;
+      }
+      if (data.profileImage) {
+        updates.photoURL = data.profileImage;
+      }
+
+      await updateProfile(currentUser, updates);
+      
+      // Update local state
+      if (user) {
+        setUser({
+          ...user,
+          ...data
+        });
+      }
+
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully",
       });
-    } catch (error) {
-      // Error is handled by the api service
+    } catch (error: any) {
+      toast({
+        title: "Profile update failed",
+        description: error.message || "Failed to update profile. Please try again.",
+        variant: "destructive"
+      });
       throw error;
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout, updateProfile }}
+      value={{ 
+        user, 
+        loading, 
+        login, 
+        register, 
+        logout, 
+        updateProfile: updateUserProfile 
+      }}
     >
       {children}
     </AuthContext.Provider>
