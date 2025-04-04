@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { z } from "zod";
 
+const LOGO_URL = "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=48&h=48&fit=crop";
+
 const registerSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   email: z.string().email("Invalid email format"),
@@ -83,9 +85,11 @@ const Register = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
           <Link to="/" className="inline-flex items-center space-x-2">
-            <div className="w-12 h-12 rounded-full bg-brandPurple flex items-center justify-center">
-              <span className="text-white font-bold text-xl">VS</span>
-            </div>
+            <img 
+              src={LOGO_URL} 
+              alt="ValWera Sports Logo" 
+              className="w-12 h-12 rounded-full object-cover border-2 border-brandPurple"
+            />
             <span className="text-2xl font-bold text-brandPurple">
               ValWera Sports
             </span>

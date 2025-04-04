@@ -13,6 +13,8 @@ import { Bell, Home, MessageSquare, Search, User, Users } from "lucide-react";
 import { Input } from "./ui/input";
 import { useState } from "react";
 
+const LOGO_URL = "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=48&h=48&fit=crop";
+
 const Navbar = () => {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,9 +33,11 @@ const Navbar = () => {
         <div className="h-16 flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-full bg-brandPurple flex items-center justify-center">
-                <span className="text-white font-bold text-xl">VS</span>
-              </div>
+              <img 
+                src={LOGO_URL} 
+                alt="ValWera Sports Logo" 
+                className="w-10 h-10 rounded-full object-cover border-2 border-brandPurple"
+              />
               <span className="text-xl font-bold text-brandPurple hidden md:block">
                 ValWera Sports
               </span>
